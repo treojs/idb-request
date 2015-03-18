@@ -1,0 +1,17 @@
+{
+  "name": "idb-request",
+  "description": "",
+  "repository": "git://github.com/treojs/idb-request.git",
+  "version": "1.0.0",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "keywords": [
+    "indexeddb",
+    "treo",
+    "request",
+    "idb"
+  ],
+  "files": [
+    "lib"
+  ]
+}
