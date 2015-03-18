@@ -1,6 +1,6 @@
 {
   "name": "idb-request",
-  "description": "",
+  "description": "Transform IndexedDB request-like object to Promise",
   "repository": "git://github.com/treojs/idb-request.git",
   "version": "1.0.0",
   "license": "MIT",
@@ -11,7 +11,15 @@
     "request",
     "idb"
   ],
+  "scripts": {
+    "test": "browserify-test",
+    "start": "browserify-test --watch"
+  },
   "files": [
     "lib"
-  ]
+  ],
+  "devDependencies": {
+    "browserify-test": "^1.1.0",
+    "chai": "^2.1.2"
+  }
 }
