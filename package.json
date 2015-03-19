@@ -19,6 +19,7 @@
     "lib"
   ],
   "devDependencies": {
+    "bluebird": "^2.9.14",
     "browserify-test": "^1.1.0",
     "chai": "^2.1.2"
   }

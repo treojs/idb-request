@@ -15,8 +15,8 @@ describe('idb-request', function() {
 
   beforeEach(function createDb(done) {
     var req = idb.open('mydb', 3);
+    req.onblocked = function onblocked(e) { console.log('create blocked: ' + e) };
     req.onupgradeneeded = onupgradeneeded;
-    req.onblocked = function onblocked(e) { console.log('open blocked:' + e) };
     return request(req).then(function(origin) {
       db = origin;
       db.onversionchange = function onversionchange() { db.close() };
@@ -26,26 +26,25 @@ describe('idb-request', function() {
     function onupgradeneeded(e) {
       var db = e.target.result;
       var tr = e.target.transaction;
-
       if (e.oldVersion < 1) {
-        var books = db.createObjectStore('books', { keyPath: 'isbn' });
-        books.createIndex('byTitle', 'title', { unique: true });
-        books.createIndex('byAuthor', 'author');
+        db.createObjectStore('books', { keyPath: 'isbn' });
+        tr.objectStore('books').createIndex('byTitle', 'title', { unique: true });
+        tr.objectStore('books').createIndex('byAuthor', 'author');
       }
       if (e.oldVersion < 2) {
-        tr.objectStore('books').createIndex('by_year', 'year');
+        tr.objectStore('books').createIndex('byYear', 'year');
       }
       if (e.oldVersion < 3) {
-        var magazines = db.createObjectStore('magazines', { autoIncrement: true, keyPath: 'id' });
-        magazines.createIndex('by_publisher', 'publisher');
-        magazines.createIndex('by_frequency', 'frequency');
+        db.createObjectStore('magazines', { autoIncrement: true, keyPath: 'id' });
+        tr.objectStore('magazines').createIndex('byPublisher', 'publisher');
+        tr.objectStore('magazines').createIndex('byFrequency', 'frequency');
       }
     }
   });
 
   afterEach(function deleteDb(done) {
-    var req = idb.deleteDatabase('mydb');
-    req.onblocked = function onblocked(e) { console.log('drop blocked:' + e) };
+    var req = idb.deleteDatabase(db.name);
+    req.onblocked = function onblocked(e) { console.log('delete blocked: ' + e) };
     return request(req).then(function() { done() });
   });
 
@@ -113,7 +112,6 @@ describe('idb-request', function() {
         expect(result).length(3);
         done();
       });
-
       function iterator(cursor) {
         result.push(cursor.value);
         cursor.continue();
