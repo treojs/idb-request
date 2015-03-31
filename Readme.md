@@ -4,8 +4,8 @@ Transform IndexedDB request-like object to `Promise`.
 
 ## Example
 
-Example using [ES7 async/await syntax](https://github.com/lukehoban/ecmascript-asyncawait),
-which you can use today with [6to5](http://6to5.org/):
+[ES7 async/await](https://github.com/lukehoban/ecmascript-asyncawait) example,
+which can be compiled with [babel](https://babeljs.io):
 
 ```js
 var request = require('idb-request');
@@ -57,8 +57,9 @@ function onupgradeneeded(e) {
 ## API
 ### request(req, [tr])
 
+Create request and wait transaction to complete.
+
 ```js
-// create request and wait transaction to complete
 var tr = db.transaction(['stores'], 'readwrite');
 var stores = tr.objectStore('stores');
 var req = stores.put({ id: 1, title: 'Store 1' });
@@ -67,7 +68,7 @@ request(req, tr).then(function() {});
 
 ### request(tr)
 
-Reuse transaction
+Reuse transaction.
 
 ```js
 Promise.all([
@@ -81,11 +82,11 @@ Promise.all([
 
 ### request(req, fn)
 
-Iterate using cursors.
+Iterate through object store or index using cursors.
 
 ```js
-var req = stores.openCursor();
 var result = [];
+var req = stores.openCursor();
 request(req, iterator).then(function() {});
 
 function iterator(cursor) {
@@ -96,7 +97,14 @@ function iterator(cursor) {
 
 ### request.Promise
 
-[1]: https://developer.mozilla.org/en-US/docs/Web/API/IDBRequest
-[2]: https://developer.mozilla.org/en-US/docs/Web/API/IDBTransaction
-[3]: https://developer.mozilla.org/en-US/docs/Web/API/IDBCursor
-[4]: http://www.html5rocks.com/en/tutorials/es6/promises/
+By default it uses global `Promise` object,
+you can replace it to any ES6 compatible implementation.
+
+```js
+var request = require('idb-request');
+request.Promise = require('bluebird');
+```
+
+## License
+
+MIT
