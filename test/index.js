@@ -3,16 +3,16 @@ var Promise = require('es6-promise').Promise;
 var expect = require('chai').expect;
 var request = require('../lib');
 var idb = global.indexedDB || global.webkitIndexedDB;
+var isPolyfill = false;
 
 // enable WebSQL polyfill
 if (!idb) {
   require('./support/indexeddb-shim');
   idb = global.indexedDB;
-  var isPolyfill = true;
+  isPolyfill = true;
 }
 
-// force to use bluebird's Promise implementation, because
-// it builds on top of microtasks and allows transaction reuse
+// force to use a Promise implementation, built on top of microtasks, allowing transaction reuse
 // https://stackoverflow.com/questions/28388129/inconsistent-interplay-between-indexeddb-transactions-and-promises
 // http://lists.w3.org/Archives/Public/public-webapps/2014AprJun/0811.html
 request.Promise = Promise;
@@ -23,9 +23,9 @@ describe('idb-request', function() {
 
   beforeEach(function(done) {
     var req = idb.open(dbName, 3);
-    req.onblocked = function onblocked(e) { console.log('create blocked: ' + e) };
+    req.onblocked = function onblocked(e) { console.log('create blocked: %j', e); };
     req.onupgradeneeded = onupgradeneeded;
-    return request(req).then(function(origin) { db = origin; done() });
+    return request(req).then(function(origin) { db = origin; done(); });
 
     function onupgradeneeded(e) {
       var oldVersion = e.oldVersion > (Math.pow(2, 32) - 1) ? 0 : e.oldVersion; // Safari bug
@@ -52,8 +52,8 @@ describe('idb-request', function() {
     db.close(); // Safari/WebSQLPolyfill does not handle onversionchange
     setTimeout(function() {
       var req = idb.deleteDatabase(db.name);
-      req.onblocked = function onblocked(e) { console.log('delete blocked: ' + e) };
-      request(req).then(function() { done() });
+      req.onblocked = function onblocked(e) { console.log('delete blocked: %j', e); };
+      request(req).then(function() { done(); });
     }, 50);
   });
 
@@ -97,7 +97,7 @@ describe('idb-request', function() {
       request(magazines.put({ id: 1, name: 'Magazine 1' })),
       request(magazines.put({ id: 2, name: 'Magazine 2' })),
     ]).then(function() {
-      return request(tr).then(function() { done() });
+      return request(tr).then(function() { done(); });
     });
   });
 
