@@ -3,7 +3,13 @@ var Promise = require('es6-promise').Promise;
 var expect = require('chai').expect;
 var request = require('../lib');
 var idb = global.indexedDB || global.webkitIndexedDB;
-if (!idb) return; // IndexedDB is not available
+
+// enable WebSQL polyfill
+if (!idb) {
+  require('./support/indexeddb-shim');
+  idb = global.indexedDB;
+  var isPolyfill = true;
+}
 
 // force to use bluebird's Promise implementation, because
 // it builds on top of microtasks and allows transaction reuse
@@ -12,20 +18,17 @@ if (!idb) return; // IndexedDB is not available
 request.Promise = Promise;
 
 describe('idb-request', function() {
+  var dbName = 'idb-request1';
   var db;
 
   beforeEach(function(done) {
-    var req = idb.open('mydb', 3);
+    var req = idb.open(dbName, 3);
     req.onblocked = function onblocked(e) { console.log('create blocked: ' + e) };
     req.onupgradeneeded = onupgradeneeded;
-    return request(req).then(function(origin) {
-      db = origin;
-      db.onversionchange = function onversionchange() { db.close() };
-      done();
-    });
+    return request(req).then(function(origin) { db = origin; done() });
 
     function onupgradeneeded(e) {
-      var oldVersion = e.oldVersion > 3 ? 0 : e.oldVersion; // Safari bug
+      var oldVersion = e.oldVersion > (Math.pow(2, 32) - 1) ? 0 : e.oldVersion; // Safari bug
       var db = e.target.result;
       var tr = e.target.transaction;
 
@@ -46,16 +49,16 @@ describe('idb-request', function() {
   });
 
   afterEach(function(done) {
-    db.close(); // weird Safari bug
+    db.close(); // Safari/WebSQLPolyfill does not handle onversionchange
     setTimeout(function() {
       var req = idb.deleteDatabase(db.name);
       req.onblocked = function onblocked(e) { console.log('delete blocked: ' + e) };
       request(req).then(function() { done() });
-    }, 100);
+    }, 50);
   });
 
   it('request(db)', function() {
-    expect(db.name).equal('mydb');
+    expect(db.name).equal(dbName);
     expect(db.version).equal(3);
     expect([].slice.call(db.objectStoreNames)).eql(['books', 'magazines']);
   });
@@ -68,6 +71,7 @@ describe('idb-request', function() {
       request(books.put({ title: 'Water Buffaloes', author: 'Fred', isbn: 234567 })),
       request(books.put({ title: 'Bedrock Nights', author: 'Barney', isbn: 345678 })),
     ]).then(function() {
+      if (isPolyfill) books = db.transaction(['books'], 'readwrite').objectStore('books');
       return request(books.count()).then(function(count) {
         expect(count).equal(3);
         done();
@@ -106,6 +110,7 @@ describe('idb-request', function() {
       request(books.put({ title: 'Water Buffaloes', author: 'Fred', isbn: 234567 })),
       request(books.put({ title: 'Bedrock Nights', author: 'Barney', isbn: 345678 })),
     ]).then(function() {
+      if (isPolyfill) books = db.transaction(['books'], 'readwrite').objectStore('books');
       var req = books.openCursor();
       var result = [];
       return request(req, iterator).then(function() {
@@ -119,8 +124,9 @@ describe('idb-request', function() {
     });
   });
 
+  if (isPolyfill) return; // ignore
   it('handle errors', function(done) {
-    return request(idb.open('mydb', 2)).catch(function(err) {
+    return request(idb.open(dbName, 2)).catch(function(err) {
       expect(err.name).equal('VersionError');
       var tr = db.transaction(['books'], 'readwrite');
       var books = tr.objectStore('books');
