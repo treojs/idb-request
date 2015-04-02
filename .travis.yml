@@ -3,6 +3,6 @@ node_js:
   - '0.10'
 env:
   global:
-# see https://github.com/defunctzombie/zuul/wiki/travis-ci
     - SAUCE_ACCESS_KEY: iW6buciSVevcLz6noZziLsAMAFpC6bN7iRH4ru0b64jRlmEvWuL64YRyexExwj6l6r2+LOdcJ0NsMnQWCaVjwX9/zxYvzNLleor3RcznANqyQCnZbms+mGD9abcJ5nG+tauP6ssPatZ0673pg/MPlpSDG3jQwqZhtfKYbMwcUYI=
     - SAUCE_USERNAME: RSFzeRTcg/xPVMIFtkPTrC28a9jw35kP8JxU+0xXv97KG8nC6eRPh3OoJesSouY91KeHwF4Wn5g39j/z1TAB1Bp/ReGFAuXCfKQNQ5Mm2Eo9VE7aKs/K9wtv3RwNbTcmJrCQvNx+3gXsN0gjk7auaxMRjgnuGSuIVI9BmLbUTyE=
+# see https://github.com/defunctzombie/zuul/wiki/travis-ci
