@@ -102,7 +102,7 @@ you can replace it to any ES6 compatible implementation.
 
 ```js
 var request = require('idb-request');
-request.Promise = require('bluebird');
+request.Promise = require('es6-promise');
 ```
 
 ## License
