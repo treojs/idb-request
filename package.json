@@ -12,7 +12,7 @@
     "idb"
   ],
   "scripts": {
-    "test": "browserify-test",
+    "test": "zuul -- test/index.js",
     "start": "browserify-test --watch"
   },
   "files": [
@@ -20,6 +20,7 @@
   ],
   "devDependencies": {
     "browserify-test": "^1.1.0",
+    "zuul": "^2.1.1",
     "chai": "^2.1.2",
     "es6-promise": "^2.0.1"
   }
