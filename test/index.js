@@ -1,8 +1,9 @@
 /* globals -Promise */
-var Promise = require('bluebird');
+var Promise = require('es6-promise').Promise;
 var expect = require('chai').expect;
 var request = require('../lib');
 var idb = global.indexedDB || global.webkitIndexedDB;
+if (!idb) return; // IndexedDB is not available
 
 // force to use bluebird's Promise implementation, because
 // it builds on top of microtasks and allows transaction reuse
@@ -13,7 +14,7 @@ request.Promise = Promise;
 describe('idb-request', function() {
   var db;
 
-  beforeEach(function createDb(done) {
+  beforeEach(function(done) {
     var req = idb.open('mydb', 3);
     req.onblocked = function onblocked(e) { console.log('create blocked: ' + e) };
     req.onupgradeneeded = onupgradeneeded;
@@ -24,17 +25,19 @@ describe('idb-request', function() {
     });
 
     function onupgradeneeded(e) {
+      var oldVersion = e.oldVersion > 3 ? 0 : e.oldVersion; // Safari bug
       var db = e.target.result;
       var tr = e.target.transaction;
-      if (e.oldVersion < 1) {
+
+      if (oldVersion < 1) {
         db.createObjectStore('books', { keyPath: 'isbn' });
         tr.objectStore('books').createIndex('byTitle', 'title', { unique: true });
         tr.objectStore('books').createIndex('byAuthor', 'author');
       }
-      if (e.oldVersion < 2) {
+      if (oldVersion < 2) {
         tr.objectStore('books').createIndex('byYear', 'year');
       }
-      if (e.oldVersion < 3) {
+      if (oldVersion < 3) {
         db.createObjectStore('magazines', { autoIncrement: true, keyPath: 'id' });
         tr.objectStore('magazines').createIndex('byPublisher', 'publisher');
         tr.objectStore('magazines').createIndex('byFrequency', 'frequency');
@@ -42,10 +45,13 @@ describe('idb-request', function() {
     }
   });
 
-  afterEach(function deleteDb(done) {
-    var req = idb.deleteDatabase(db.name);
-    req.onblocked = function onblocked(e) { console.log('delete blocked: ' + e) };
-    return request(req).then(function() { done() });
+  afterEach(function(done) {
+    db.close(); // weird Safari bug
+    setTimeout(function() {
+      var req = idb.deleteDatabase(db.name);
+      req.onblocked = function onblocked(e) { console.log('delete blocked: ' + e) };
+      request(req).then(function() { done() });
+    }, 100);
   });
 
   it('request(db)', function() {
@@ -55,22 +61,16 @@ describe('idb-request', function() {
   });
 
   it('request(req)', function(done) {
-    var tr = db.transaction(['books', 'magazines'], 'readwrite');
-    var books = tr.objectStore('books');
-    var magazines = tr.objectStore('magazines');
+    var books = db.transaction(['books'], 'readwrite').objectStore('books');
 
     return Promise.all([
       request(books.put({ title: 'Quarry Memories', author: 'Fred', isbn: 123456 })),
       request(books.put({ title: 'Water Buffaloes', author: 'Fred', isbn: 234567 })),
       request(books.put({ title: 'Bedrock Nights', author: 'Barney', isbn: 345678 })),
-      request(magazines.put({ id: 'mykey', name: 'My magazine' })),
     ]).then(function() {
       return request(books.count()).then(function(count) {
         expect(count).equal(3);
-        return request(magazines.get('mykey')).then(function(val) {
-          expect(val).eql({ id: 'mykey', name: 'My magazine' });
-          done();
-        });
+        done();
       });
     });
   });
