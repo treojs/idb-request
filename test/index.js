@@ -1,6 +1,7 @@
 /* globals -Promise */
 var Promise = require('es6-promise').Promise;
 var expect = require('chai').expect;
+var Schema = require('idb-schema');
 var request = require('../lib');
 var idb = global.indexedDB || global.webkitIndexedDB;
 var isPolyfill = false;
@@ -20,46 +21,38 @@ request.Promise = Promise;
 describe('idb-request', function() {
   var dbName = 'idb-request1';
   var db;
+  var schema = new Schema()
+  .version(1)
+    .addStore('books', { key: 'isbn' })
+    .addIndex('byTitle', 'title', { unique: true })
+    .addIndex('byAuthor', 'author')
+  .version(2)
+    .getStore('books')
+    .addIndex('byYear', 'year')
+  .version(3)
+    .addStore('magazines', { key: 'id', increment: true })
+    .addIndex('byPublisher', 'publisher')
+    .addIndex('byFrequency', 'frequency');
 
   beforeEach(function(done) {
-    var req = idb.open(dbName, 3);
-    req.onblocked = function onblocked(e) { console.log('create blocked: %j', e); };
-    req.onupgradeneeded = onupgradeneeded;
-    return request(req).then(function(origin) { db = origin; done(); });
-
-    function onupgradeneeded(e) {
-      var oldVersion = e.oldVersion > (Math.pow(2, 32) - 1) ? 0 : e.oldVersion; // Safari bug
-      var db = e.target.result;
-      var tr = e.target.transaction;
-
-      if (oldVersion < 1) {
-        db.createObjectStore('books', { keyPath: 'isbn' });
-        tr.objectStore('books').createIndex('byTitle', 'title', { unique: true });
-        tr.objectStore('books').createIndex('byAuthor', 'author');
-      }
-      if (oldVersion < 2) {
-        tr.objectStore('books').createIndex('byYear', 'year');
-      }
-      if (oldVersion < 3) {
-        db.createObjectStore('magazines', { autoIncrement: true, keyPath: 'id' });
-        tr.objectStore('magazines').createIndex('byPublisher', 'publisher');
-        tr.objectStore('magazines').createIndex('byFrequency', 'frequency');
-      }
-    }
+    var req = idb.open(dbName, schema.version());
+    req.onblocked = function onblocked(e) { console.log('create blocked: %j' + e) };
+    req.onupgradeneeded = schema.callback();
+    return request(req).then(function(origin) { db = origin; done() });
   });
 
   afterEach(function(done) {
     db.close(); // Safari/WebSQLPolyfill does not handle onversionchange
     setTimeout(function() {
       var req = idb.deleteDatabase(db.name);
-      req.onblocked = function onblocked(e) { console.log('delete blocked: %j', e); };
-      request(req).then(function() { done(); });
+      req.onblocked = function onblocked(e) { console.log('delete blocked: %j', e) };
+      request(req).then(function() { done() });
     }, 50);
   });
 
   it('request(db)', function() {
     expect(db.name).equal(dbName);
-    expect(db.version).equal(3);
+    expect(db.version).equal(schema.version());
     expect([].slice.call(db.objectStoreNames)).eql(['books', 'magazines']);
   });
 

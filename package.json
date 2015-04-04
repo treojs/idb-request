@@ -20,8 +20,9 @@
   ],
   "devDependencies": {
     "browserify-test": "^1.1.0",
-    "zuul": "^2.1.1",
     "chai": "^2.1.2",
-    "es6-promise": "^2.0.1"
+    "es6-promise": "^2.0.1",
+    "idb-schema": "^1.0.0",
+    "zuul": "^2.1.1"
   }
 }
