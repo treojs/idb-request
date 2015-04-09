@@ -90,6 +90,7 @@ describe('idb-request', function() {
       request(magazines.put({ id: 1, name: 'Magazine 1' })),
       request(magazines.put({ id: 2, name: 'Magazine 2' })),
     ]).then(function() {
+      if (isPolyfill) return done();
       return request(tr).then(function() { done(); });
     });
   });
@@ -117,8 +118,8 @@ describe('idb-request', function() {
     });
   });
 
-  if (isPolyfill) return; // ignore
   it('handle errors', function(done) {
+    if (isPolyfill) return done(); // ignore
     return request(idb.open(dbName, 2)).catch(function(err) {
       expect(err.name).equal('VersionError');
       var tr = db.transaction(['books'], 'readwrite');

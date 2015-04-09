@@ -12,7 +12,7 @@
     "idb"
   ],
   "scripts": {
-    "test": "zuul -- test/index.js",
+    "test": "browserify-test",
     "start": "browserify-test --watch"
   },
   "files": [
@@ -23,7 +23,6 @@
     "chai": "^2.1.2",
     "es6-promise": "^2.0.1",
     "idb-schema": "^1.0.0",
-    "treo-websql": "^1.0.0",
-    "zuul": "^2.1.1"
+    "treo-websql": "^1.0.0"
   }
 }
