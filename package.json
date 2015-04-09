@@ -2,7 +2,7 @@
   "name": "idb-request",
   "description": "Transform IndexedDB request-like object to Promise",
   "repository": "git://github.com/treojs/idb-request.git",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "license": "MIT",
   "main": "lib/index.js",
   "keywords": [
