@@ -51,7 +51,7 @@ var range = require('idb-range');
 
 async function() {
   var schema = new Schema()
-  .addStore('books', { key: 'id' })
+  .addStore('books', { key: 'id', increment: true })
   .addIndex('byTitle', 'title', { unique: true })
   .addIndex('byAuthor', 'author');
 
@@ -86,44 +86,28 @@ async function() {
 
 ## Caveats
 
-Promise seems like a nice way to deal with IndexedDB's asynchrony.
-**But** browsers have different Promise implementation, and for now only Chrome handles them right.
+`Promise` seems like a nice way to deal with IndexedDB's asynchrony.
+**But** browsers have different implementations, and for now only Chrome performs correctly.
 The problem related with [micro-tasks queue and IndexedDB transactions](https://stackoverflow.com/questions/28388129/inconsistent-interplay-between-indexeddb-transactions-and-promises).
 
 ## API
 
-### request(req)
+### request(req, [tr])
 
-Lister to request `onsuccess` event.
+Listen to request's `onsuccess` event.
 
 ```js
 var req = window.indexedDB.deleteDatabase('mydb');
 request(req);
 ```
 
-### request(tr)
-
-Listen to transaction `oncomplete` event.
-
-```js
-Promise.all([
-  request(stores.put({ id: 1, title: 'Book 1' })),
-  request(stores.put({ id: 2, title: 'Book 2' })),
-  request(stores.put({ id: 3, title: 'Book 3' })),
-]).then(function() {
-  return request(tr); // wait transaction to complete
-});
-```
-
-### request(req, [tr])
-
-Create request and wait transaction to complete.
+Or pass transaction as a second argument to wait for completion.
 
 ```js
 var tr = db.transaction(['stores'], 'readwrite');
 var stores = tr.objectStore('stores');
-var req = stores.put({ id: 1, title: 'Store 1' });
-request(req, tr).then(function() {});
+var req = stores.put({ title: 'Store 1' });
+request(req, tr).then(function(requestResult) {});
 ```
 
 ### request(req, iterator)
@@ -141,12 +125,28 @@ function iterator(cursor) {
 }
 ```
 
+### request(tr)
+
+Listen to transaction's `oncomplete` event.
+
+```js
+var tr = db.transaction(['stores'], 'readwrite');
+var stores = tr.objectStore('stores');
+
+Promise.all([
+  request(stores.put({ id: 1, title: 'Book 1' })),
+  request(stores.put({ id: 2, title: 'Book 2' })),
+  request(stores.put({ id: 3, title: 'Book 3' })),
+]).then(function() {
+  return request(tr); // wait transaction to complete
+});
+```
+
 ### request.Promise
 
 By default it uses globally available `Promise` implementation.
 You can replace it with any ES6 compatible module
-like [es6-promise](https://github.com/jakearchibald/es6-promise)
-or [bluebird](https://github.com/petkaantonov/bluebird).
+like [es6-promise](https://github.com/jakearchibald/es6-promise) or [bluebird](https://github.com/petkaantonov/bluebird).
 
 ```js
 var request = require('idb-request');
