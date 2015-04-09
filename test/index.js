@@ -8,7 +8,7 @@ var isPolyfill = false;
 
 // enable WebSQL polyfill
 if (!idb) {
-  require('./support/indexeddb-shim');
+  require('treo-websql').polyfill();
   idb = global.indexedDB;
   isPolyfill = true;
 }
