@@ -1,5 +1,9 @@
 # idb-request
 
+[![](https://img.shields.io/npm/v/idb-request.svg)](https://npmjs.org/package/idb-request)
+[![](https://img.shields.io/travis/treojs/idb-request.svg)](https://travis-ci.org/treojs/idb-request)
+[![](http://img.shields.io/npm/dm/idb-request.svg)](https://npmjs.org/package/idb-request)
+
 Transform IndexedDB request-like object to a `Promise`.
 
 ## Example
