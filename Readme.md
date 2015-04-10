@@ -101,8 +101,17 @@ The problem related with [micro-tasks queue and IndexedDB transactions](https://
 Listen to request's `onsuccess` event.
 
 ```js
-var req = window.indexedDB.deleteDatabase('mydb');
+var req = window.indexedDB.open('mydb');
 request(req);
+```
+
+It also listens for `onblocked` event and processes it as an error:
+
+```js
+var req = window.indexedDB.deleteDatabase('mydb');
+request(req).catch(function(err) {
+  console.log('database is using. Handle onversionchange properly to avoid this blocks.');
+});
 ```
 
 Or pass transaction as a second argument to wait for completion.

@@ -36,18 +36,24 @@ describe('idb-request', function() {
 
   beforeEach(function(done) {
     var req = idb.open(dbName, schema.version());
-    req.onblocked = function onblocked(e) { console.log('create blocked: %j' + e) };
     req.onupgradeneeded = schema.callback();
-    return request(req).then(function(origin) { db = origin; done() });
+    return request(req)
+    .then(function(origin) { db = origin; done() });
   });
 
   afterEach(function(done) {
     db.close(); // Safari/WebSQLPolyfill does not handle onversionchange
-    setTimeout(function() {
+    return timeout().then(function() {
       var req = idb.deleteDatabase(db.name);
-      req.onblocked = function onblocked(e) { console.log('delete blocked: %j', e) };
-      request(req).then(function() { done() });
-    }, 50);
+      return request(req).then(function() { done() });
+    });
+
+    // wrap setTimeout to promise, to handle block errors with mocha
+    function timeout() {
+      return new Promise(function(resolve) {
+        setTimeout(function() { resolve() }, 50);
+      });
+    }
   });
 
   it('request(db)', function() {
@@ -118,8 +124,10 @@ describe('idb-request', function() {
     });
   });
 
+  // ignore error handling
+  if (isPolyfill) return;
+
   it('handle errors', function(done) {
-    if (isPolyfill) return done(); // ignore
     return request(idb.open(dbName, 2)).catch(function(err) {
       expect(err.name).equal('VersionError');
       var tr = db.transaction(['books'], 'readwrite');
