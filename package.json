@@ -12,17 +12,18 @@
     "idb"
   ],
   "scripts": {
-    "test": "browserify-test",
-    "start": "browserify-test --watch"
+    "test": "browserify-test -t babelify",
+    "start": "browserify-test  -t babelify -w"
   },
   "files": [
     "lib"
   ],
   "devDependencies": {
-    "browserify-test": "^1.1.0",
-    "chai": "^2.1.2",
-    "es6-promise": "^2.0.1",
-    "idb-schema": "^1.0.0",
-    "treo-websql": "^1.0.0"
+    "babelify": "^6.0.2",
+    "browserify-test": "^1.2.0",
+    "chai": "^2.3.0",
+    "es6-promise": "^2.1.1",
+    "idb-schema": "^1.1.0",
+    "indexeddbshim": "^1.0.13"
   }
 }
