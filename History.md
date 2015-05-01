@@ -1,3 +1,8 @@
+## 1.1.2 / 2015-05-01
+
+* code style improvements
+* update docs
+
 ## 1.1.1 / 2015-04-30
 
 * support [indexeddbshim](https://github.com/axemclion/IndexedDBShim)
