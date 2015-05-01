@@ -4,23 +4,23 @@
 [![](https://img.shields.io/travis/treojs/idb-request.svg)](https://travis-ci.org/treojs/idb-request)
 [![](http://img.shields.io/npm/dm/idb-request.svg)](https://npmjs.org/package/idb-request)
 
-Transform IndexedDB request-like object to a `Promise`.
+> Transform IndexedDB request-like object to a `Promise`.
 
 ## Example
 
 Using [es6-promise](https://github.com/jakearchibald/es6-promise):
 
 ```js
-var request = require('idb-request');
-var Promise = require('es6-promise');
-request.Promise = Promise; // force idb-request to use es6-promise
+var request = require('idb-request')
+var Promise = require('es6-promise')
+request.Promise = Promise // force idb-request to use es6-promise
 
-var req = window.indexedDB.open('mydb');
-req.onupgradenedded = onupgradeneeded;
+var req = window.indexedDB.open('mydb')
+req.onupgradenedded = onupgradeneeded
 
 request(req).then(function(db) {
-  var tr = db.transaction(['books'], 'readwrite');
-  var books = tr.objectStore('books');
+  var tr = db.transaction(['books'], 'readwrite')
+  var books = tr.objectStore('books')
 
   Promise.all([
     request(books.put({ id: 1, title: 'Book 1', author: 'Author 1' })),
@@ -28,71 +28,72 @@ request(req).then(function(db) {
     request(books.put({ id: 3, title: 'Book 3', author: 'Author 3' })),
   ]).then(function() {
     return request(books.count()).then(function(count) {
-      console.log(count); // 3
-    });
+      console.log(count) // 3
+    })
   }).catch(function(err) {
     // handle error
-  });
-});
+  })
+})
 
 function onupgradeneeded(e) {
-  var db = e.target.result;
+  var db = e.target.result
   if (e.oldVersion < 1) {
-    var books = db.createObjectStore('books', { keyPath: 'id' });
-    books.createIndex('byTitle', 'title', { unique: true });
-    books.createIndex('byAuthor', 'author');
+    var books = db.createObjectStore('books', { keyPath: 'id' })
+    books.createIndex('byTitle', 'title', { unique: true })
+    books.createIndex('byAuthor', 'author')
   }
 }
 ```
 
 More advanced example using
-[ES7 async/await](https://github.com/lukehoban/ecmascript-asyncawait) syntax, [idb-schema](https://github.com/treojs/idb-schema), and [idb-range](https://github.com/treojs/idb-range):
+[ES6 generators](http://www.2ality.com/2015/03/es6-generators.html) syntax, [idb-schema](https://github.com/treojs/idb-schema), and [idb-range](https://github.com/treojs/idb-range):
 
 ```js
-var request = require('idb-request');
-var Schema = require('idb-schema');
-var range = require('idb-range');
+var request = require('idb-request')
+var Schema = require('idb-schema')
+var range = require('idb-range')
+var co = require('co')
+var assert = require('assert')
 
-async function() {
+co(function*() {
   var schema = new Schema()
-  .addStore('books', { key: 'id', increment: true })
+  .addStore('books', { key: 'id' })
   .addIndex('byTitle', 'title', { unique: true })
-  .addIndex('byAuthor', 'author');
+  .addIndex('byAuthor', 'author')
 
   // open database
-  var req = window.indexedDB.open('mydb', schema.version());
-  req.onupgradeneeded = schema.callback();
-  var db = await request(req);
+  var req = window.indexedDB.open('mydb', schema.version())
+  req.onupgradeneeded = schema.callback()
+  var db = yield request(req)
 
-  // write data
-  var tr = db.transaction(['books'], 'readwrite');
-  var books = tr.objectStore('books');
+  // write data in one transaction
+  var tr = db.transaction(['books'], 'readwrite')
+  var books = tr.objectStore('books')
 
-  // put data in one transaction
-  await request(books.put({ id: 1, title: 'Book 1', author: 'Author 1' }));
-  await request(books.put({ id: 2, title: 'Book 2', author: 'Author 2' }));
-  await request(books.put({ id: 3, title: 'Book 3', author: 'Author 3' }));
-  await request(tr); // complete transaction
+  yield request(books.put({ id: 1, title: 'Book 1', author: 'Author 1' }))
+  yield request(books.put({ id: 2, title: 'Book 2', author: 'Author 2' }))
+  yield request(books.put({ id: 3, title: 'Book 3', author: 'Author 3' }))
+  yield request(tr) // complete transaction
 
   // read data
-  tr = db.transaction(['books'], 'readonly');
-  books = tr.objectStore('books');
+  tr = db.transaction(['books'], 'readonly')
+  books = tr.objectStore('books')
 
-  var book1 = await request(books.get(1));
-  var book2 = await request(books.get(2));
-  var count = await request(books.index('byAuthor').count(range({ gte: 'Author 2' })));
+  var book1 = yield request(books.get(1))
+  var book2 = yield request(books.get(2))
+  var count = yield request(books.index('byAuthor').count(range({ gte: 'Author 2' })))
 
-  assert(book1.title == 'Book 1');
-  assert(book2.title == 'Book 2');
-  assert(count == 2);
-}();
+  assert(book1.title == 'Book 1')
+  assert(book2.title == 'Book 2')
+  assert(count == 2)
+})()
 ```
 
 ## Caveats
 
 `Promise` seems like a nice way to deal with IndexedDB's asynchrony.
 **But** browsers have different implementations, and for now only Chrome performs correctly.
-The problem related with [micro-tasks queue and IndexedDB transactions](https://stackoverflow.com/questions/28388129/inconsistent-interplay-between-indexeddb-transactions-and-promises).
+The problem is related with [micro-tasks queue and IndexedDB transactions](https://stackoverflow.com/questions/28388129/inconsistent-interplay-between-indexeddb-transactions-and-promises).
 
 ## API
 
@@ -101,26 +102,26 @@ The problem related with [micro-tasks queue and IndexedDB transactions](https://
 Listen to request's `onsuccess` event.
 
 ```js
-var req = window.indexedDB.open('mydb');
-request(req);
+var req = window.indexedDB.open('mydb')
+request(req)
 ```
 
 It also listens for `onblocked` event and processes it as an error:
 
 ```js
-var req = window.indexedDB.deleteDatabase('mydb');
+var req = window.indexedDB.deleteDatabase('mydb')
 request(req).catch(function(err) {
-  console.log('database is using. Handle onversionchange properly to avoid this blocks.');
-});
+  console.log('database is using. Handle onversionchange properly to avoid this blocks.')
+})
 ```
 
 Or pass transaction as a second argument to wait for completion.
 
 ```js
-var tr = db.transaction(['stores'], 'readwrite');
-var stores = tr.objectStore('stores');
-var req = stores.put({ title: 'Store 1' });
-request(req, tr).then(function(requestResult) {});
+var tr = db.transaction(['stores'], 'readwrite')
+var stores = tr.objectStore('stores')
+var req = stores.put({ title: 'Store 1' })
+request(req, tr).then(function(requestResult) {})
 ```
 
 ### request(req, iterator)
@@ -128,13 +129,13 @@ request(req, tr).then(function(requestResult) {});
 Iterate through object store or index using cursor.
 
 ```js
-var result = [];
-var req = stores.openCursor();
-request(req, iterator).then(function() {});
+var result = []
+var req = stores.openCursor()
+request(req, iterator).then(function() {})
 
 function iterator(cursor) {
-  result.push(cursor.value);
-  cursor.continue();
+  result.push(cursor.value)
+  cursor.continue()
 }
 ```
 
@@ -143,16 +144,16 @@ function iterator(cursor) {
 Listen to transaction's `oncomplete` event.
 
 ```js
-var tr = db.transaction(['stores'], 'readwrite');
-var stores = tr.objectStore('stores');
+var tr = db.transaction(['stores'], 'readwrite')
+var stores = tr.objectStore('stores')
 
 Promise.all([
   request(stores.put({ id: 1, title: 'Book 1' })),
   request(stores.put({ id: 2, title: 'Book 2' })),
   request(stores.put({ id: 3, title: 'Book 3' })),
 ]).then(function() {
-  return request(tr); // wait transaction to complete
-});
+  return request(tr) // wait transaction to complete
+})
 ```
 
 ### request.Promise
@@ -162,8 +163,8 @@ You can replace it with any ES6 compatible module
 like [es6-promise](https://github.com/jakearchibald/es6-promise) or [bluebird](https://github.com/petkaantonov/bluebird).
 
 ```js
-var request = require('idb-request');
-request.Promise = require('es6-promise');
+var request = require('idb-request')
+request.Promise = require('es6-promise')
 ```
 
 ## License
