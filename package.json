@@ -12,18 +12,17 @@
     "idb"
   ],
   "scripts": {
-    "test": "browserify-test -t babelify",
-    "start": "browserify-test  -t babelify -w"
+    "test": "browserify-test",
+    "start": "browserify-test -w"
   },
   "files": [
     "lib"
   ],
   "devDependencies": {
-    "babelify": "^6.0.2",
     "browserify-test": "^1.2.0",
     "chai": "^2.3.0",
     "es6-promise": "^2.1.1",
     "idb-schema": "^1.1.0",
-    "indexeddbshim": "^1.0.13"
+    "indexeddbshim": "^1.0.14"
   }
 }
