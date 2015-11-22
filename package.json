@@ -17,7 +17,7 @@
   "scripts": {
     "prepublish": "babel src --out-dir lib",
     "test": "eslint src/ test/ && browserify-test -t babelify",
-    "start": "browserify-test -t babelify -w"
+    "development": "browserify-test -t babelify -w"
   },
   "devDependencies": {
     "babel-cli": "6.1.18",
@@ -32,6 +32,7 @@
     "eslint": "^1.9.0",
     "eslint-config-airbnb": "^1.0.0",
     "idb-schema": "^3.1.1",
+    "indexeddbshim": "^2.2.1",
     "zuul": "^3.7.3"
   }
 }
