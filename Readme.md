@@ -10,6 +10,10 @@
 
 **But** if you're going to reuse transactions, you can't do it with `Promise` sugar and need to rely on `onsuccess` callback. This problem is well explained in ["Tasks, microtasks, queues and schedules"](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/) article.
 
+## Installation
+
+    npm install --save idb-request
+
 ## Example
 
 Using [ES2016 async/await syntax](http://tc39.github.io/ecmascript-asyncawait/).
