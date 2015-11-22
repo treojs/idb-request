@@ -46,20 +46,6 @@ describe('idb-request', () => {
     })
   })
 
-  it('request(req)', () => {
-    const wBooks = db.transaction(['books'], 'readwrite').objectStore('books')
-    return Promise.all([
-      request(wBooks.put({ title: 'Quarry Memories', author: 'Fred', isbn: 123456 })),
-      request(wBooks.put({ title: 'Water Buffaloes', author: 'Fred', isbn: 234567 })),
-      request(wBooks.put({ title: 'Bedrock Nights', author: 'Barney', isbn: 345678 })),
-    ]).then(() => {
-      const rBooks = db.transaction(['books'], 'readonly').objectStore('books')
-      return request(rBooks.count()).then((count) => {
-        expect(count).equal(3)
-      })
-    })
-  })
-
   it('request(req, tr)', () => {
     const tr = db.transaction(['magazines'], 'readwrite')
     const magazines = tr.objectStore('magazines')
@@ -70,28 +56,15 @@ describe('idb-request', () => {
     })
   })
 
-  it('request(tr)', () => {
-    const tr = db.transaction(['magazines'], 'readwrite')
-    const magazines = tr.objectStore('magazines')
-
-    return Promise.all([
-      request(magazines.put({ id: 1, name: 'Magazine 1' })),
-      request(magazines.put({ id: 2, name: 'Magazine 2' })),
-      requestTransaction(tr),
-    ]).then(() => {
-      const req = db.transaction(['magazines'], 'readonly').objectStore('magazines').count()
-      return request(req).then((count) => {
-        expect(count).equal(2)
-      })
-    })
-  })
-
   it('request(cursor, iterator)', () => {
-    const wBooks = db.transaction(['books'], 'readwrite').objectStore('books')
+    const tr = db.transaction(['books'], 'readwrite')
+    const wBooks = tr.objectStore('books')
+
     return Promise.all([
       request(wBooks.put({ title: 'Quarry Memories', author: 'Fred', isbn: 123456 })),
       request(wBooks.put({ title: 'Water Buffaloes', author: 'Fred', isbn: 234567 })),
       request(wBooks.put({ title: 'Bedrock Nights', author: 'Barney', isbn: 345678 })),
+      requestTransaction(tr),
     ]).then(() => {
       const rBooks = db.transaction(['books'], 'readonly').objectStore('books')
       const req = rBooks.openCursor()
