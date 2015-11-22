@@ -14,7 +14,9 @@ ES6Promise.polyfill()
 describe('idb-request', () => {
   let db
 
+  const idb = global.indexedDB || global.webkitIndexedDB
   const dbName = 'idb-request'
+
   const schema = new Schema()
   .version(1)
     .addStore('books', { key: 'isbn' })
@@ -29,7 +31,7 @@ describe('idb-request', () => {
     .addIndex('byFrequency', 'frequency')
 
   beforeEach(() => {
-    const req = global.indexedDB.open(dbName, schema.version())
+    const req = idb.open(dbName, schema.version())
     req.onupgradeneeded = schema.callback()
 
     return request(req).then((origin) => {
@@ -40,7 +42,7 @@ describe('idb-request', () => {
   afterEach(() => {
     db.close()
     return new Promise((resolve) => setTimeout(resolve, 100)).then(() => {
-      return request(global.indexedDB.deleteDatabase(dbName))
+      return request(idb.deleteDatabase(dbName))
     })
   })
 

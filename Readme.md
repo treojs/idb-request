@@ -1,10 +1,12 @@
 # idb-request
 
+> Transform IndexedDB request-like object to a `Promise`.
+
 [![](https://img.shields.io/npm/v/idb-request.svg)](https://npmjs.org/package/idb-request)
 [![](https://img.shields.io/travis/treojs/idb-request.svg)](https://travis-ci.org/treojs/idb-request)
 [![](http://img.shields.io/npm/dm/idb-request.svg)](https://npmjs.org/package/idb-request)
 
-> Transform IndexedDB request-like object to a `Promise`.
+[![](https://saucelabs.com/browser-matrix/idb-request.svg)](https://saucelabs.com/u/idb-request)
 
 [ES2015 `Promise`](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Promise) is a nice way to deal with primitives of IndexedDB. `IDBRequest` has `onsuccess` and `onerror` callbacks, which perfectly map to Promise's `resolve` and `reject`. The same applies to `IDBTransaction`'s `oncomplete` and `onerror`.
 

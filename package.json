@@ -18,7 +18,7 @@
   ],
   "scripts": {
     "prepublish": "babel src --out-dir lib",
-    "test": "eslint src/ test/ && browserify-test -t babelify",
+    "test": "eslint src/ test/ && browserify-test -t babelify && SAUCE_USERNAME=idb-request zuul --no-coverage -- test/index.js",
     "development": "browserify-test -t babelify -w"
   },
   "devDependencies": {
@@ -31,7 +31,7 @@
     "browserify-test": "^2.1.2",
     "chai": "^3.4.1",
     "es6-promise": "^3.0.2",
-    "eslint": "^1.9.0",
+    "eslint": "^1.10.1",
     "eslint-config-airbnb": "^1.0.0",
     "idb-schema": "^3.1.1",
     "indexeddbshim": "^2.2.1",
