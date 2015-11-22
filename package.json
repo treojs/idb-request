@@ -1,10 +1,13 @@
 {
   "name": "idb-request",
-  "description": "Transform IndexedDB request-like object to Promise",
-  "repository": "git://github.com/treojs/idb-request.git",
+  "description": "Transform IndexedDB request-like object to a Promise",
+  "repository": "treojs/idb-reques",
   "version": "1.1.2",
   "license": "MIT",
   "main": "lib/index.js",
+  "files": [
+    "lib"
+  ],
   "keywords": [
     "indexeddb",
     "treo",
@@ -12,17 +15,20 @@
     "idb"
   ],
   "scripts": {
-    "test": "browserify-test",
-    "start": "browserify-test -w"
+    "prepublish": "babel src --out-dir lib",
+    "test": "browserify-test -t babelify",
+    "start": "browserify-test -t babelify -w"
   },
-  "files": [
-    "lib"
-  ],
   "devDependencies": {
-    "browserify-test": "^1.2.0",
-    "chai": "^2.3.0",
-    "es6-promise": "^2.1.1",
-    "idb-schema": "^1.1.0",
-    "indexeddbshim": "^1.0.14"
+    "babel-cli": "6.1.18",
+    "babel-core": "6.1.18",
+    "babel-plugin-add-module-exports": "^0.1.1",
+    "babel-preset-es2015": "^6.1.18",
+    "babelify": "^7.2.0",
+    "browserify-test": "^2.1.2",
+    "chai": "^3.4.1",
+    "es6-promise": "^3.0.2",
+    "idb-schema": "^3.1.1",
+    "zuul": "^3.7.3"
   }
 }
