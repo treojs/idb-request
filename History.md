@@ -1,3 +1,13 @@
+## 2.0.0 / 2015-11-22
+
+* instead of one function it exports 3 for different purposes:
+  `request(req, [tr])`, `requestTransaction(tr)`, `requestCursor(req, iterator)`
+* remove `request.Promise` and rely on globally available, since it's a standart now
+* full rewrite on ES6
+* add zuul + saucelabs integration
+* use eslint to validate code style
+* update docs
+
 ## 1.1.2 / 2015-05-01
 
 * code style improvements
