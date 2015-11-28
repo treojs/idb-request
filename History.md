@@ -1,3 +1,9 @@
+## 3.0.0 / 2015-11-28
+
+* drop support for `onblocked` callback. It is not an error and should handle differently.
+  Use [idb-factory](https://github.com/treojs/idb-factory) to open/delete database.
+* update docs & zuul configuration
+
 ## 2.0.0 / 2015-11-22
 
 * instead of one function it exports 3 for different purposes:
