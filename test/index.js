@@ -2,20 +2,17 @@ import 'indexeddbshim'
 import { expect } from 'chai'
 import ES6Promise from 'es6-promise'
 import Schema from 'idb-schema'
+import { open, del } from 'idb-factory'
 import { request, requestTransaction, requestCursor } from '../src'
-
-// Setup global `Promise`
-ES6Promise.polyfill()
 
 // NOTE:
 // Transaction reuse is not implemeneted right in Safari and WebsqlShim.
 // So we create new transaction for each async tick to avoid issues.
 
 describe('idb-request', () => {
-  let db
-
-  const idb = global.indexedDB || global.webkitIndexedDB
+  ES6Promise.polyfill()
   const dbName = 'idb-request'
+  let db
 
   const schema = new Schema()
   .version(1)
@@ -31,20 +28,13 @@ describe('idb-request', () => {
     .addIndex('byFrequency', 'frequency')
 
   beforeEach(() => {
-    const req = idb.open(dbName, schema.version())
-    req.onupgradeneeded = schema.callback()
-
-    return request(req).then((origin) => {
+    return open(dbName, schema.version(), schema.callback()).then((origin) => {
       db = origin
     })
   })
 
-  afterEach(() => {
-    db.close()
-    return new Promise((resolve) => setTimeout(resolve, 100)).then(() => {
-      return request(idb.deleteDatabase(dbName))
-    })
-  })
+  before(() => del(dbName))
+  afterEach(() => del(db))
 
   it('request(req, tr)', () => {
     const tr = db.transaction(['magazines'], 'readwrite')
