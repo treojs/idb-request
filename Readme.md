@@ -8,9 +8,9 @@
 
 [![](https://saucelabs.com/browser-matrix/idb-request.svg)](https://saucelabs.com/u/idb-request)
 
-[ES2015 `Promise`](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Promise) is a nice way to deal with primitives of IndexedDB. `IDBRequest` has `onsuccess` and `onerror` callbacks, which perfectly map to Promise's `resolve` and `reject`. The same applies to `IDBTransaction`'s `oncomplete` and `onerror`.
+[Promise](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Promise) is a nice way to deal with primitives of IndexedDB. `IDBRequest` has `onsuccess` and `onerror` callbacks, which perfectly map to Promise's `resolve` and `reject`. The same applies to `oncomplete` and `onerror` of `IDBTransaction`.
 
-**But** if you're going to reuse transactions, you can't do it with `Promise` sugar and need to rely on `onsuccess` callback. This problem is well explained in ["Tasks, microtasks, queues and schedules"](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/) article.
+**Note:** if you're going to reuse transactions, you can't do it with `Promise` and need to rely on default callback syntax. This issue is well explained in ["Tasks, microtasks, queues and schedules" article](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/).
 
 ## Installation
 
@@ -31,8 +31,8 @@ async () => {
     request(books.put({ id: 1, title: 'Book 1', author: 'Author 1' })),
     request(books.put({ id: 2, title: 'Book 2', author: 'Author 1' })),
     request(books.put({ id: 3, title: 'Book 3', author: 'Author 3' })),
+    requestTransaction(tr),
   ])
-  async requestTransaction(tr)
 
   const req = books.index('byAuthor').openCursor(null, 'nextunique')
   const authors = []
@@ -54,7 +54,6 @@ function upgradeCallback(e) {
 ## API
 
 Each function returns `Promise`.
-If it's not available you can polyfill it using [es6-promise](https://github.com/jakearchibald/es6-promise) for example.
 
 ### request(req, [tr])
 
@@ -67,7 +66,7 @@ const books = db.transaction(['books'], 'readonly').objectStore('books')
 request(books.count()).then((count) => {})
 ```
 
-Pass transaction as a second argument to wait for completion and return request's result.
+Pass transaction as a second argument to wait for completion and return result of request.
 
 ```js
 import { request } from 'idb-request'
@@ -76,9 +75,7 @@ const tr = db.transaction(['books'], 'readwrite')
 const books = tr.objectStore('books')
 const req = books.put({ title: 'Store 1' })
 
-request(req, tr).then((requestResult) => {
-
-})
+request(req, tr).then((requestResult) => {})
 ```
 
 ### requestCursor(req, iterator)
@@ -113,9 +110,8 @@ Promise.all([
   request(books.put({ id: 1, title: 'Book 1' })),
   request(books.put({ id: 2, title: 'Book 2' })),
   request(books.put({ id: 3, title: 'Book 3' })),
-]).then(() => {
-  return requestTransaction(tr)
-})
+  requestTransaction(tr),
+])
 ```
 
 ## License
