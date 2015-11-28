@@ -16,4 +16,4 @@ browsers:
   - name: safari
     version: 8..latest
   - name: iphone
-    version: '7.1..8.4'
+    version: '8.0..8.4'
