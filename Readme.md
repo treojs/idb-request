@@ -21,17 +21,11 @@
 Using [ES2016 async/await syntax](http://tc39.github.io/ecmascript-asyncawait/).
 
 ```js
+import { open } from 'idb-factory'
 import { request, requestTransaction, requestCursor } from 'idb-request'
 
 async () => {  
-  const req = window.indexedDB.open('mydb')
-  req.onupgradenedded = (e) => {
-    const books = e.target.result.createObjectStore('books', { keyPath: 'id' })
-    books.createIndex('byTitle', 'title', { unique: true })
-    books.createIndex('byAuthor', 'author')
-  }
-
-  const db = async request(req)
+  const db = async open('mydb', 1, upgradeCallback)
   const tr = db.transaction(['books'], 'readwrite')
   async Promise.all([
     request(books.put({ id: 1, title: 'Book 1', author: 'Author 1' })),
@@ -49,6 +43,12 @@ async () => {
 
   console.assert(authors === ['Author 1', 'Author 2'])
 }()
+
+function upgradeCallback(e) {
+  const books = e.target.result.createObjectStore('books', { keyPath: 'id' })
+  books.createIndex('byTitle', 'title', { unique: true })
+  books.createIndex('byAuthor', 'author')
+}
 ```
 
 ## API
@@ -62,19 +62,9 @@ Listen to request's `onsuccess` event.
 
 ```js
 import { request } from 'idb-request'
-const req = window.indexedDB.open('mydb')
-request(req)
-```
 
-It also listens for `onblocked` event and processes it as an error:
-
-```js
-import { request } from 'idb-request'
-
-const req = window.indexedDB.deleteDatabase('mydb')
-request(req).catch(function(err) {
-  console.log('Database is using. Handle onversionchange properly to avoid blocks.')
-})
+const books = db.transaction(['books'], 'readonly').objectStore('books')
+request(books.count()).then((count) => {})
 ```
 
 Pass transaction as a second argument to wait for completion and return request's result.

@@ -16,8 +16,6 @@ export function request(req, tr = null) {
       result = e.target.result
       if (!tr) resolve(e.target.result)
     }
-    // open/deleteDatabase requests, can be locked, and it's an error
-    if (req.onblocked === null) req.onblocked = handleError(reject)
     if (tr) tr.oncomplete = () => resolve(result)
   })
 }
