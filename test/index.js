@@ -67,7 +67,7 @@ describe('idb-request', () => {
     expect(map(result, 'author')).eql(['Barney', 'Fred'])
   })
 
-  it('fixes indexes direction="prevunique"', async () => {
+  it('fixes unique indexes iterator', async () => {
     const tr = db.transaction(['magazines'], 'readwrite')
     const wMagazines = tr.objectStore('magazines')
 
@@ -87,14 +87,14 @@ describe('idb-request', () => {
     const req1 = rMagazines.index('byFrequency').openCursor(range({ lte: 30 }), 'prevunique')
     const req2 = rMagazines.index('byPublisher').openCursor(null, 'prevunique')
 
-    const [ result1, result2 ] = await Promise.all([
+    const [result1, result2] = await Promise.all([
       mapCursor(req1, iterator),
       mapCursor(req2, iterator),
     ])
 
-    expect(map(result1, 'id')).eql([3, 1])
-    expect(map(result1, 'frequency')).eql([24, 12])
-    expect(map(result2, 'id')).eql([2, 1])
-    expect(map(result2, 'publisher')).eql(['P2', 'P1'])
+    expect(map(result1, 'id')[0]).equal(3)
+    expect(result1).length(2)
+    expect(map(result2, 'id')[0]).equal(2)
+    expect(result2).length(2)
   })
 })

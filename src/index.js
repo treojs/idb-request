@@ -48,7 +48,8 @@ export function requestCursor(req, iterator) {
 
   const keys = {} // count unique keys
   const patchedIterator = (cursor) => {
-    if ((cursor.direction === 'prevunique' || cursor.direction === 'nextunique') && !cursor.source.multiEntry) {
+    if ((cursor.direction === 'prevunique' || cursor.direction === 'nextunique')
+    && !cursor.source.multiEntry) {
       if (!keys[cursor.key]) {
         keys[cursor.key] = true
         iterator(cursor)
