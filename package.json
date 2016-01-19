@@ -35,8 +35,10 @@
     "eslint": "^1.10.3",
     "eslint-config-airbnb": "^3.1.0",
     "idb-factory": "^1.0.0",
+    "idb-range": "^3.1.3",
     "idb-schema": "^3.1.1",
     "indexeddbshim": "^2.2.1",
+    "lodash.map": "^4.0.0",
     "regenerator": "^0.8.42",
     "zuul": "^3.9.0"
   }

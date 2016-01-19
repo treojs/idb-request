@@ -43,12 +43,29 @@ export function requestTransaction(tr) {
  */
 
 export function requestCursor(req, iterator) {
+  // patch iterator to fix:
+  // https://github.com/axemclion/IndexedDBShim/issues/204
+
+  const keys = {} // count unique keys
+  const patchedIterator = (cursor) => {
+    if ((cursor.direction === 'prevunique' || cursor.direction === 'nextunique') && !cursor.source.multiEntry) {
+      if (!keys[cursor.key]) {
+        keys[cursor.key] = true
+        iterator(cursor)
+      } else {
+        cursor.continue()
+      }
+    } else {
+      iterator(cursor)
+    }
+  }
+
   return new Promise((resolve, reject) => {
     req.onerror = handleError(reject)
     req.onsuccess = (e) => {
       const cursor = e.target.result
       if (cursor) {
-        iterator(cursor)
+        patchedIterator(cursor)
       } else {
         resolve()
       }

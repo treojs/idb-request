@@ -10,7 +10,12 @@
 
 [Promise](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Promise) is a nice way to deal with primitives of IndexedDB. `IDBRequest` has `onsuccess` and `onerror` callbacks, which perfectly map to Promise's `resolve` and `reject`. The same applies to `oncomplete` and `onerror` of `IDBTransaction`.
 
-**Note:** if you're going to reuse transactions, you can't do it with `Promise` and need to rely on default callback syntax. This issue is well explained in ["Tasks, microtasks, queues and schedules" article](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/).
+If you're going to reuse transactions with `Promise` syntax, you can't be sure it works in all browsers.
+You need to rely on default callback syntax or use [idb-batch](https://github.com/treojs/idb-batch).
+This issue is well explained in ["Tasks, microtasks, queues and schedules" article](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/).
+
+Internally `idb-request` fixes [IndexedDBShim#204 issue](https://github.com/axemclion/IndexedDBShim/issues/204)
+and allows safely iterate over index cursors.
 
 ## Installation
 
@@ -36,14 +41,14 @@ async () => {
     requestTransaction(tr),
   ])
 
-  const req = books.index('byAuthor').openCursor(null, 'nextunique')
-  const authors = []
+  const req = books.index('byAuthor').openCursor(null, 'nextunique') // works everywhere
+  const result = []
   await requestCursor(req, (cursor) => {
-    authors.push(cursor.value)
+    result.push(cursor.value)
     cursor.continue()
   })
 
-  console.assert(map(authors, 'author') === ['Barney', 'Fred'])
+  console.assert(map(result, 'author') === ['Barney', 'Fred'])
 }()
 
 function upgradeCallback(e) {
@@ -112,7 +117,7 @@ await requestCursor(req, (cursor) => {
   cursor.continue()
 })
 
-// use result
+// use result array
 ```
 
 ### requestTransaction(tr)
