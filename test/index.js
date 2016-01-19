@@ -1,4 +1,5 @@
 import 'indexeddbshim'
+import 'regenerator/runtime'
 import { expect } from 'chai'
 import ES6Promise from 'es6-promise'
 import Schema from 'idb-schema'
@@ -27,47 +28,41 @@ describe('idb-request', () => {
     .addIndex('byPublisher', 'publisher')
     .addIndex('byFrequency', 'frequency')
 
-  beforeEach(() => {
-    return open(dbName, schema.version(), schema.callback()).then((origin) => {
-      db = origin
-    })
+  beforeEach(async () => {
+    db = await open(dbName, schema.version(), schema.callback())
   })
-
   before(() => del(dbName))
-  afterEach(() => del(db))
+  afterEach(() => del(db || dbName))
 
-  it('request(req, tr)', () => {
+  it('#request(req, tr)', async () => {
     const tr = db.transaction(['magazines'], 'readwrite')
     const magazines = tr.objectStore('magazines')
     const req = magazines.put({ name: 'My magazine' })
 
-    return request(req, tr).then((id) => {
-      expect(id).equal(1)
-    })
+    const id = await request(req, tr)
+    expect(id).equal(1)
   })
 
-  it('request(cursor, iterator)', () => {
+  it('#requestCursor(req, iterator)', async () => {
     const tr = db.transaction(['books'], 'readwrite')
     const wBooks = tr.objectStore('books')
 
-    return Promise.all([
+    await Promise.all([
       request(wBooks.put({ title: 'Quarry Memories', author: 'Fred', isbn: 123456 })),
       request(wBooks.put({ title: 'Water Buffaloes', author: 'Fred', isbn: 234567 })),
       request(wBooks.put({ title: 'Bedrock Nights', author: 'Barney', isbn: 345678 })),
       requestTransaction(tr),
-    ]).then(() => {
-      const rBooks = db.transaction(['books'], 'readonly').objectStore('books')
-      const req = rBooks.openCursor()
-      const result = []
+    ])
 
-      return requestCursor(req, iterator).then(() => {
-        expect(result).length(3)
-      })
-
-      function iterator(cursor) {
-        result.push(cursor.value)
-        cursor.continue()
-      }
+    const rBooks = db.transaction(['books'], 'readonly').objectStore('books')
+    const req = rBooks.index('byAuthor').openCursor(null, 'nextunique')
+    const result = []
+    await requestCursor(req, (cursor) => {
+      result.push(cursor.value)
+      cursor.continue()
     })
+
+    expect(map(result, 'author')).eql(['Barney', 'Fred'])
+  })
   })
 })

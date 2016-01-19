@@ -23,25 +23,27 @@ Using [ES2016 async/await syntax](http://tc39.github.io/ecmascript-asyncawait/).
 ```js
 import { open } from 'idb-factory'
 import { request, requestTransaction, requestCursor } from 'idb-request'
+import map from 'lodash.map'
 
 async () => {  
-  const db = async open('mydb', 1, upgradeCallback)
+  const db = await open('mydb', 1, upgradeCallback)
   const tr = db.transaction(['books'], 'readwrite')
-  async Promise.all([
-    request(books.put({ id: 1, title: 'Book 1', author: 'Author 1' })),
-    request(books.put({ id: 2, title: 'Book 2', author: 'Author 1' })),
-    request(books.put({ id: 3, title: 'Book 3', author: 'Author 3' })),
+
+  await Promise.all([
+    request(books.put({ id: 1, title: 'Quarry Memories', author: 'Fred' })),
+    request(books.put({ id: 2, title: 'Water Buffaloes', author: 'Fred' })),
+    request(books.put({ id: 3, title: 'Bedrock Nights', author: 'Barney' })),
     requestTransaction(tr),
   ])
 
   const req = books.index('byAuthor').openCursor(null, 'nextunique')
   const authors = []
-  async requestCursor(req, (cursor) => {
+  await requestCursor(req, (cursor) => {
     authors.push(cursor.value)
     cursor.continue()
   })
 
-  console.assert(authors === ['Author 1', 'Author 2'])
+  console.assert(map(authors, 'author') === ['Barney', 'Fred'])
 }()
 
 function upgradeCallback(e) {
@@ -88,8 +90,8 @@ Iterator has 2 arguments:
 ```js
 import { mapCursor } from 'idb-request'
 
-mapCursor(books.openCursor(), (cursor, result) => {
-  result.push(cursor.value)
+const result = await mapCursor(books.openCursor(), (cursor, memo) => {
+  memo.push(cursor.value)
   cursor.continue()
 })
 ```
@@ -105,12 +107,12 @@ import { requestCursor } from 'idb-request'
 const result = []
 const req = books.openCursor()
 
-requestCursor(req, (cursor) => {
+await requestCursor(req, (cursor) => {
   result.push(cursor.value)
   cursor.continue()
-}).then(function() {
-  return result
 })
+
+// use result
 ```
 
 ### requestTransaction(tr)
@@ -123,10 +125,10 @@ import { request, requestTransaction } from 'idb-request'
 const tr = db.transaction(['books'], 'readwrite')
 const books = tr.objectStore('books')
 
-Promise.all([
-  request(books.put({ id: 1, title: 'Book 1' })),
-  request(books.put({ id: 2, title: 'Book 2' })),
-  request(books.put({ id: 3, title: 'Book 3' })),
+await Promise.all([
+  request(books.put({ id: 1, title: 'Quarry Memories' })),
+  request(books.put({ id: 2, title: 'Water Buffaloes' })),
+  request(books.put({ id: 3, title: 'Bedrock Nights' })),
   requestTransaction(tr),
 ])
 ```

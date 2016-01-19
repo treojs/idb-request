@@ -26,6 +26,7 @@
     "babel-core": "^6.4.0",
     "babel-eslint": "^4.1.5",
     "babel-plugin-add-module-exports": "^0.1.2",
+    "babel-plugin-transform-async-to-generator": "^6.4.0",
     "babel-preset-es2015": "^6.4.0",
     "babelify": "^7.2.0",
     "browserify-test": "^2.1.2",
@@ -36,6 +37,7 @@
     "idb-factory": "^1.0.0",
     "idb-schema": "^3.1.1",
     "indexeddbshim": "^2.2.1",
+    "regenerator": "^0.8.42",
     "zuul": "^3.9.0"
   }
 }
