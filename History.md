@@ -1,3 +1,8 @@
+## 3.1.0 / 2016-01-19
+
+* add `mapCursor` method
+* fix [IndexedDBShim#204 issue](https://github.com/axemclion/IndexedDBShim/issues/204) when iterate over indexes
+
 ## 3.0.0 / 2015-11-28
 
 * drop support for `onblocked` callback. It is not an error and should handle differently.
