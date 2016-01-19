@@ -78,9 +78,26 @@ const req = books.put({ title: 'Store 1' })
 request(req, tr).then((requestResult) => {})
 ```
 
+### mapCursor(req, iterator)
+
+Map values over cursor.
+Iterator has 2 arguments:
+- `cursor` object,
+- `result` array, which is returned on resolve. Default value is `[]`.
+
+```js
+import { mapCursor } from 'idb-request'
+
+mapCursor(books.openCursor(), (cursor, result) => {
+  result.push(cursor.value)
+  cursor.continue()
+})
+```
+
 ### requestCursor(req, iterator)
 
 Iterate through object store or index using cursor.
+The same example as `mapCursor` above:
 
 ```js
 import { requestCursor } from 'idb-request'

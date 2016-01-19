@@ -57,6 +57,19 @@ export function requestCursor(req, iterator) {
 }
 
 /**
+ * Special helper to map values over cursor.
+ *
+ * @param {IDBRequest} req
+ * @param {Function} iterator
+ * @return {Promise}
+ */
+
+export function mapCursor(req, iterator) {
+  const result = []
+  return requestCursor(req, (cursor) => iterator(cursor, result)).then(() => result)
+}
+
+/**
  * Helper to handle errors and call `reject`.
  *
  * @param {Function} reject - from Promise constructor
