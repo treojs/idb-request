@@ -57,14 +57,23 @@ describe('idb-request', () => {
     ])
 
     const rBooks = db.transaction(['books'], 'readonly').objectStore('books')
-    const req = rBooks.index('byAuthor').openCursor(null, 'nextunique')
-    const result = []
-    await requestCursor(req, (cursor) => {
-      result.push(cursor.value)
+    const req1 = rBooks.index('byAuthor').openCursor(null, 'nextunique')
+    const res1 = []
+    await requestCursor(req1, (cursor) => {
+      res1.push(cursor.value)
       cursor.continue()
     })
 
-    expect(map(result, 'author')).eql(['Barney', 'Fred'])
+    expect(map(res1, 'author')).eql(['Barney', 'Fred'])
+
+    const req2 = db.transaction(['books'], 'readonly').objectStore('books').openCursor()
+    const res2 = []
+    await requestCursor(req2, (cursor, stop) => {
+      res2.push(cursor.value)
+      if (res2.length >= 2) stop()
+      else cursor.continue()
+    })
+    expect(map(res1, 'isbn')).eql([345678, 123456])
   })
 
   it('fixes unique indexes iterator', async () => {

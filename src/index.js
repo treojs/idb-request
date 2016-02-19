@@ -47,26 +47,27 @@ export function requestCursor(req, iterator) {
   // https://github.com/axemclion/IndexedDBShim/issues/204
 
   const keys = {} // count unique keys
-  const patchedIterator = (cursor) => {
+  const patchedIterator = (cursor, stop) => {
     if ((cursor.direction === 'prevunique' || cursor.direction === 'nextunique')
     && !cursor.source.multiEntry) {
       if (!keys[cursor.key]) {
         keys[cursor.key] = true
-        iterator(cursor)
+        iterator(cursor, stop)
       } else {
         cursor.continue()
       }
     } else {
-      iterator(cursor)
+      iterator(cursor, stop)
     }
   }
 
   return new Promise((resolve, reject) => {
+    const stop = () => resolve()
     req.onerror = handleError(reject)
     req.onsuccess = (e) => {
       const cursor = e.target.result
       if (cursor) {
-        patchedIterator(cursor)
+        patchedIterator(cursor, stop)
       } else {
         resolve()
       }
@@ -84,7 +85,7 @@ export function requestCursor(req, iterator) {
 
 export function mapCursor(req, iterator) {
   const result = []
-  return requestCursor(req, (cursor) => iterator(cursor, result)).then(() => result)
+  return requestCursor(req, (cursor, stop) => iterator(cursor, result, stop)).then(() => result)
 }
 
 /**

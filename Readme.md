@@ -88,33 +88,39 @@ request(req, tr).then((requestResult) => {})
 ### mapCursor(req, iterator)
 
 Map values over cursor.
-Iterator has 2 arguments:
+Iterator has 3 arguments:
 - `cursor` object,
 - `result` array, which is returned on resolve. Default value is `[]`.
+- `stop` resolve promise and exit earlier
 
 ```js
 import { mapCursor } from 'idb-request'
 
-const result = await mapCursor(books.openCursor(), (cursor, memo) => {
+const limit = 10
+const result = await mapCursor(books.openCursor(), (cursor, memo, stop) => {
   memo.push(cursor.value)
-  cursor.continue()
+  if (memo.length >= limit) stop()
+  else cursor.continue()
 })
 ```
 
 ### requestCursor(req, iterator)
 
 Iterate through object store or index using cursor.
+
 The same example as `mapCursor` above:
 
 ```js
 import { requestCursor } from 'idb-request'
 
+const limit = 10
 const result = []
 const req = books.openCursor()
 
-await requestCursor(req, (cursor) => {
+await requestCursor(req, (cursor, stop) => {
   result.push(cursor.value)
-  cursor.continue()
+  if (memo.length >= limit) stop()
+  else cursor.continue()
 })
 
 // use result array
