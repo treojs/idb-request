@@ -2,8 +2,6 @@ ui: mocha-bdd
 browserify:
   - transform:
       name: babelify
-      presets: es2015
-      plugins: add-module-exports
 browsers:
   - name: chrome
     version: -1..latest
@@ -14,6 +12,6 @@ browsers:
   - name: android
     version: '4.4..latest'
   - name: safari
-    version: 8..latest
+    version: 6..latest
   - name: iphone
-    version: '8.0..8.4'
+    version: '6.0..latest'
