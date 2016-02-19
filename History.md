@@ -1,3 +1,7 @@
+## 3.2.0 / 2016-02-19
+
+* add `stop()` callback support to `requestCursor()` and `mapCursor()`
+
 ## 3.1.0 / 2016-01-19
 
 * add `mapCursor` method
