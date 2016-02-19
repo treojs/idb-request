@@ -19,26 +19,26 @@
   "scripts": {
     "prepublish": "babel src --out-dir lib",
     "test": "eslint src/ test/ && browserify-test -t babelify && SAUCE_USERNAME=idb-request zuul --no-coverage --tunnel-host http://treojs.com -- test/index.js",
-    "development": "browserify-test -t babelify -w"
+    "dev": "browserify-test -t babelify -w"
   },
   "devDependencies": {
-    "babel-cli": "^6.4.0",
-    "babel-core": "^6.4.0",
-    "babel-eslint": "^4.1.5",
+    "babel-cli": "^6.5.1",
+    "babel-core": "^6.5.2",
+    "babel-eslint": "^5.0.0",
     "babel-plugin-add-module-exports": "^0.1.2",
-    "babel-plugin-transform-async-to-generator": "^6.4.0",
-    "babel-preset-es2015": "^6.3.13",
+    "babel-plugin-transform-async-to-generator": "^6.5.0",
+    "babel-preset-es2015": "^6.5.0",
     "babelify": "^7.2.0",
     "browserify-test": "^2.1.2",
-    "chai": "^3.4.1",
-    "es6-promise": "^3.0.2",
+    "chai": "^3.5.0",
+    "es6-promise": "^3.1.2",
     "eslint": "^1.10.3",
-    "eslint-config-airbnb": "^3.1.0",
+    "eslint-config-airbnb": "^5.0.1",
     "idb-factory": "^1.0.0",
     "idb-range": "^3.1.3",
-    "idb-schema": "^3.1.1",
+    "idb-schema": "^3.2.1",
     "indexeddbshim": "^2.2.1",
-    "lodash.map": "^4.0.0",
+    "lodash.map": "^4.2.0",
     "regenerator": "^0.8.42",
     "zuul": "^3.9.0"
   }
