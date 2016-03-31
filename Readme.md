@@ -10,8 +10,8 @@
 
 [Promise](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Promise) is a nice way to deal with primitives of IndexedDB. `IDBRequest` has `onsuccess` and `onerror` callbacks, which perfectly map to Promise's `resolve` and `reject`. The same applies to `oncomplete` and `onerror` of `IDBTransaction`.
 
-If you're going to reuse transactions with `Promise` syntax, you can't be sure it works in all browsers.
-You need to rely on default callback syntax or use [idb-batch](https://github.com/treojs/idb-batch).
+If you're going to reuse transactions with `Promise` syntax, you can't be sure that it will work in all browsers.
+You need to rely on the default callback syntax or use [idb-batch](https://github.com/treojs/idb-batch).
 This issue is well explained in ["Tasks, microtasks, queues and schedules" article](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/).
 
 Internally `idb-request` fixes [IndexedDBShim#204 issue](https://github.com/axemclion/IndexedDBShim/issues/204)
@@ -33,6 +33,7 @@ import map from 'lodash.map'
 async () => {  
   const db = await open('mydb', 1, upgradeCallback)
   const tr = db.transaction(['books'], 'readwrite')
+  const books = tr.objectStore('books')
 
   await Promise.all([
     request(books.put({ id: 1, title: 'Quarry Memories', author: 'Fred' })),
@@ -60,7 +61,7 @@ function upgradeCallback(e) {
 
 ## API
 
-Each function returns `Promise`.
+Each function returns a `Promise`.
 
 ### request(req, [tr])
 
@@ -73,7 +74,7 @@ const books = db.transaction(['books'], 'readonly').objectStore('books')
 request(books.count()).then((count) => {})
 ```
 
-Pass transaction as a second argument to wait for completion and return result of request.
+Pass the transaction as a second argument to await completion and return the result of the request.
 
 ```js
 import { request } from 'idb-request'
