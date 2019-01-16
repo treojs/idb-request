@@ -1,3 +1,7 @@
+## 3.2.1 / 2019-01-16
+
+* add ESM support [#6](https://github.com/treojs/idb-request/pull/6)
+
 ## 3.2.0 / 2016-02-19
 
 * add `stop()` callback support to `requestCursor()` and `mapCursor()`
