@@ -14,9 +14,6 @@ If you're going to reuse transactions with `Promise` syntax, you can't be sure t
 You need to rely on the default callback syntax or use [idb-batch](https://github.com/treojs/idb-batch).
 This issue is well explained in ["Tasks, microtasks, queues and schedules" article](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/).
 
-Internally `idb-request` fixes [IndexedDBShim#204 issue](https://github.com/axemclion/IndexedDBShim/issues/204)
-and allows safely iterate over index cursors.
-
 ## Installation
 
     npm install --save idb-request
